@@ -1,0 +1,2405 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>もっちんの部屋</title>
+  <style>
+    :root {
+      --ink: #5a422d;
+      --muted: #806a52;
+      --paper: rgba(255, 250, 236, .78);
+      --paper-strong: rgba(255, 250, 236, .94);
+      --shop-paper: rgba(255, 248, 231, .96);
+      --line: rgba(101, 72, 43, .16);
+      --green: #76bf68;
+      --amber: #f2ad3b;
+      --blue: #65b9d1;
+      --violet: #9380cc;
+      --shadow: 0 12px 30px rgba(73, 52, 29, .16);
+      font-family: "Yu Gothic UI", "Hiragino Sans", "Meiryo", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 10%, rgba(255, 235, 178, .74), transparent 31%),
+        linear-gradient(135deg, #dbe9cf, #f9eedc 52%, #d5e7cf);
+    }
+
+    button {
+      border: 0;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(242, 173, 59, .45);
+      outline-offset: 3px;
+    }
+
+    .phone {
+      position: relative;
+      width: min(100vw, 480px);
+      aspect-ratio: 9 / 16;
+      max-height: 100vh;
+      min-height: 720px;
+      overflow: hidden;
+      background: #efe1ca;
+      box-shadow: 0 28px 80px rgba(68, 52, 34, .3);
+      isolation: isolate;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      overflow: hidden;
+      background: #efe1ca;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .room {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to bottom, rgba(255,255,255,.04), rgba(255,255,255,0) 24%, rgba(43,27,12,.04) 66%, rgba(43,27,12,.32) 100%),
+        url("assets/home/room.png");
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.006);
+      z-index: 0;
+    }
+
+    .furniture-layer,
+    .poop-layer,
+    .bird-layer,
+    .effect-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .furniture-layer { z-index: 2; }
+    .bird-layer { z-index: 4; }
+    .time-tint { z-index: 6; }
+    .effect-layer { z-index: 7; }
+    .poop-layer { z-index: 9; }
+
+    .time-tint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .22;
+      transition: background 1.2s ease, opacity 1.2s ease;
+    }
+
+    .time-tint.morning {
+      background: linear-gradient(145deg, rgba(255, 245, 188, .35), rgba(255, 255, 255, .08));
+      opacity: .32;
+    }
+
+    .time-tint.day {
+      background: transparent;
+      opacity: 0;
+    }
+
+    .time-tint.evening {
+      background: linear-gradient(145deg, rgba(255, 178, 94, .28), rgba(194, 102, 63, .16));
+      opacity: .52;
+    }
+
+    .time-tint.night {
+      background: linear-gradient(145deg, rgba(30, 58, 102, .5), rgba(18, 42, 76, .34));
+      opacity: .72;
+      mix-blend-mode: multiply;
+    }
+
+    .furniture {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 10px 12px rgba(58, 38, 19, .18));
+      user-select: none;
+    }
+
+    .poop-mark {
+      position: absolute;
+      left: var(--poop-x);
+      top: var(--poop-y);
+      width: var(--poop-size, 34px);
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 5px 6px rgba(58, 38, 19, .18));
+      opacity: 1;
+      object-fit: contain;
+    }
+
+    .furniture.perch {
+      --x: 52%;
+      --y: 58%;
+      --w: 31%;
+    }
+
+    .furniture.bed {
+      --x: 63%;
+      --y: 24%;
+      --w: 26%;
+    }
+
+    .furniture.toy {
+      --x: 45%;
+      --y: 27%;
+      --w: 18%;
+      transform-origin: 50% 88%;
+    }
+
+    .furniture.toy.wobble {
+      animation: toyWobble 1.35s ease-in-out;
+    }
+
+    .furniture.food {
+      --x: 25%;
+      --y: 70%;
+      --w: 32%;
+    }
+
+    .furniture.swing {
+      --x: 70%;
+      --y: 53%;
+      --w: 24%;
+    }
+
+    .lantern-glow {
+      position: absolute;
+      --glow-x: 76%;
+      --glow-y: 51%;
+      --glow-size: 150px;
+      width: var(--glow-size, 120px);
+      height: var(--glow-size, 120px);
+      left: var(--glow-x, 50%);
+      top: var(--glow-y, 50%);
+      transform: translate(-50%, -50%) scale(.96);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 220, 126, .58) 0%, rgba(255, 192, 96, .22) 42%, rgba(255, 192, 96, 0) 72%);
+      opacity: .58;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      animation: lanternGlow 4.5s ease-in-out infinite;
+    }
+
+    .lantern-glow.is-off {
+      display: none;
+    }
+
+    @keyframes lanternGlow {
+      0%, 100% {
+        opacity: .42;
+        transform: translate(-50%, -50%) scale(.92);
+      }
+      50% {
+        opacity: .78;
+        transform: translate(-50%, -50%) scale(1.07);
+      }
+    }
+
+    .shop-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to bottom, rgba(255, 245, 220, .42), rgba(250, 231, 195, .3)),
+        url("assets/inko-dollhouse-bg.png");
+      background-size: cover;
+      background-position: center 38%;
+      filter: blur(6px) saturate(.94);
+      transform: scale(1.05);
+      opacity: .72;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        linear-gradient(to bottom, rgba(252, 245, 222, .38), transparent 18%, transparent 74%, rgba(70, 45, 24, .26)),
+        radial-gradient(circle at 50% 42%, transparent 55%, rgba(61, 42, 24, .15));
+    }
+
+    .top-bar,
+    .left-rail,
+    .mood-button,
+    .mood-panel,
+    .care-row,
+    .nav-bar,
+    .bird-bubble,
+    .toast,
+    .sparkles,
+    .shop-top,
+    .shop-tabs,
+    .shop-sheet,
+    .placeholder-card {
+      position: absolute;
+      z-index: 10;
+    }
+
+    .top-bar {
+      top: max(12px, env(safe-area-inset-top));
+      left: 14px;
+      right: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: start;
+      pointer-events: none;
+    }
+
+    .weather,
+    .profile,
+    .round-tool,
+    .mood-button,
+    .mood-panel,
+    .care,
+    .nav-bar,
+    .back-button,
+    .nut-wallet,
+    .wood-sign,
+    .shop-tabs,
+    .product-card,
+    .set-card,
+    .placeholder-card {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .weather,
+    .profile {
+      pointer-events: auto;
+    }
+
+    .weather {
+      min-width: 104px;
+      min-height: 50px;
+      border-radius: 17px;
+      display: grid;
+      grid-template-columns: 31px 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      font-weight: 900;
+      background: rgba(255, 250, 236, .68);
+    }
+
+    .sun {
+      width: 29px;
+      height: 29px;
+      border-radius: 50%;
+      background: #ffbe2e;
+      box-shadow: 0 0 0 5px rgba(255, 190, 46, .18);
+    }
+
+    .time {
+      display: block;
+      margin-top: 1px;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .profile {
+      justify-self: center;
+      min-width: 160px;
+      min-height: 56px;
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: 39px 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 8px 11px;
+      background: rgba(255, 250, 236, .74);
+    }
+
+    .avatar {
+      width: 39px;
+      height: 39px;
+      border-radius: 14px;
+      background: linear-gradient(160deg, #ffea78 0 42%, #79c466 43%);
+      box-shadow: inset 0 -5px 8px rgba(63, 65, 26, .12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar::before,
+    .avatar::after {
+      content: "";
+      position: absolute;
+      top: 15px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #2d2922;
+    }
+
+    .avatar::before { left: 12px; }
+    .avatar::after { right: 12px; }
+
+    .name {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.08;
+      letter-spacing: 0;
+      font-weight: 1000;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .left-rail {
+      left: 15px;
+      top: 88px;
+      display: grid;
+      gap: 11px;
+    }
+
+    .round-tool {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      background: rgba(255, 250, 236, .66);
+      position: relative;
+    }
+
+    .round-tool small {
+      position: absolute;
+      bottom: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+      text-shadow: 0 1px 3px rgba(255,255,255,.95);
+    }
+
+    .notice {
+      position: absolute;
+      right: 4px;
+      top: 3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff725d;
+      box-shadow: 0 0 0 3px rgba(255,255,255,.8);
+    }
+
+    .mood-button {
+      top: max(74px, calc(env(safe-area-inset-top) + 74px));
+      right: 14px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      background: rgba(255, 250, 236, .68);
+    }
+
+    .mood-button::after {
+      content: "";
+      position: absolute;
+      right: 7px;
+      bottom: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.74);
+    }
+
+    .mood-panel {
+      top: max(130px, calc(env(safe-area-inset-top) + 130px));
+      right: 14px;
+      width: 150px;
+      border-radius: 20px;
+      padding: 12px;
+      background: var(--paper-strong);
+      opacity: 0;
+      transform: translateY(-8px) scale(.96);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .mood-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .status-item {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 7px;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px dashed rgba(108, 79, 45, .18);
+    }
+
+    .status-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 2px;
+    }
+
+    .status-label {
+      margin-bottom: 5px;
+      font-size: 11px;
+      font-weight: 1000;
+    }
+
+    .dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(89, 65, 43, .12);
+      box-shadow: inset 0 0 0 1px rgba(89, 65, 43, .08);
+    }
+
+    .dots span.on.good { background: var(--green); }
+    .dots span.on.food { background: var(--amber); }
+    .dots span.on.sleep { background: var(--violet); }
+    .dots span.on.clean { background: var(--blue); }
+
+    .live-bird {
+      position: absolute;
+      z-index: 3;
+      left: var(--bird-x, 50%);
+      top: var(--bird-y, 54%);
+      width: var(--bird-w, 104px);
+      height: var(--bird-h, var(--bird-w, 104px));
+      transform: translate(-50%, -50%) scale(var(--bird-scale, 1));
+      filter: drop-shadow(0 10px 9px rgba(47, 35, 20, .25));
+      transition:
+        left 1.7s cubic-bezier(.22, .9, .26, 1),
+        top 1.7s cubic-bezier(.22, .9, .26, 1),
+        transform 1.7s cubic-bezier(.22, .9, .26, 1);
+      pointer-events: none;
+    }
+
+    .live-bird img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: opacity .18s ease;
+      user-select: none;
+    }
+
+    .live-bird.moving { animation: floatMove 1.6s ease; }
+
+    @keyframes floatMove {
+      0%, 100% { margin-top: 0; }
+      45% { margin-top: -22px; }
+    }
+
+    @keyframes toyWobble {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+      14% { transform: translate(-50%, -50%) rotate(-9deg); }
+      30% { transform: translate(-50%, -50%) rotate(7deg); }
+      46% { transform: translate(-50%, -50%) rotate(-5deg); }
+      64% { transform: translate(-50%, -50%) rotate(3deg); }
+      82% { transform: translate(-50%, -50%) rotate(-1.5deg); }
+    }
+
+    .bird-bubble {
+      left: var(--bubble-x, 55%);
+      top: var(--bubble-y, 47%);
+      min-width: 44px;
+      max-width: 112px;
+      min-height: 36px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 253, 245, .94);
+      box-shadow: 0 8px 22px rgba(72, 47, 25, .16);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 1000;
+      opacity: 0;
+      transform: translate(-50%, 10px) scale(.94);
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease, left 1.5s ease, top 1.5s ease;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .bird-bubble.show {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+
+    .bird-bubble::after {
+      content: "";
+      position: absolute;
+      left: 21px;
+      bottom: -6px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: inherit;
+    }
+
+    .care-row {
+      left: 16px;
+      right: 16px;
+      bottom: 74px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .care {
+      min-width: 0;
+      min-height: 66px;
+      border-radius: 22px;
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: 4px;
+      padding: 7px 4px 6px;
+      background: rgba(255, 250, 236, .82);
+      font-weight: 1000;
+      transition: transform .16s ease, background .16s ease;
+    }
+
+    .care:active,
+    .nav-item:active,
+    .round-tool:active,
+    .mood-button:active,
+    .back-button:active,
+    .buy-button:active,
+    .heart-button:active {
+      transform: translateY(2px) scale(.98);
+    }
+
+    .care-icon {
+      width: 31px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .care-label {
+      font-size: 12px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .shop-top {
+      top: max(16px, env(safe-area-inset-top));
+      left: 14px;
+      right: 14px;
+      height: 126px;
+      display: grid;
+      grid-template-columns: 50px 1fr 110px;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .back-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 250, 236, .84);
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .wood-sign {
+      position: relative;
+      min-height: 92px;
+      border-radius: 23px;
+      display: grid;
+      place-items: center;
+      padding: 13px 12px 12px;
+      background:
+        linear-gradient(90deg, rgba(112, 72, 28, .08), transparent 22%, rgba(112, 72, 28, .06)),
+        linear-gradient(#fff3d8, #f6dfb4);
+      box-shadow: 0 15px 32px rgba(91, 63, 34, .17);
+    }
+
+    .wood-sign::before,
+    .wood-sign::after {
+      content: "";
+      position: absolute;
+      top: -24px;
+      width: 2px;
+      height: 34px;
+      background: rgba(91, 63, 34, .35);
+    }
+
+    .wood-sign::before { left: 20%; }
+    .wood-sign::after { right: 20%; }
+
+    .vine {
+      position: absolute;
+      width: 37px;
+      height: 80px;
+      top: -8px;
+      border-radius: 50%;
+      border-left: 3px solid rgba(102, 142, 69, .44);
+      opacity: .8;
+    }
+
+    .vine.left { left: 8px; transform: rotate(18deg); }
+    .vine.right { right: 2px; transform: rotate(196deg); }
+
+    .wood-sign h1 {
+      margin: 0;
+      font-size: 31px;
+      line-height: 1.1;
+      letter-spacing: 0;
+      font-weight: 1000;
+    }
+
+    .wood-sign p {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .nut-wallet {
+      min-height: 56px;
+      border-radius: 22px;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 10px;
+      background: rgba(255, 250, 236, .9);
+      font-weight: 1000;
+    }
+
+    .nut-wallet small {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .nut-wallet strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 23px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .shop-bird {
+      position: absolute;
+      right: 72px;
+      top: 64px;
+      width: 92px;
+      height: 56px;
+      z-index: 4;
+      pointer-events: none;
+      filter: drop-shadow(0 7px 8px rgba(53, 35, 16, .22));
+    }
+
+    .shop-bird::before {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 7px;
+      width: 55px;
+      height: 44px;
+      border-radius: 48%;
+      background: linear-gradient(145deg, #fff07b 0 38%, #83c764 39% 78%, #498d50);
+    }
+
+    .shop-bird::after {
+      content: "";
+      position: absolute;
+      right: 4px;
+      top: 30px;
+      width: 39px;
+      height: 7px;
+      border-radius: 999px;
+      background: #476e71;
+      transform: rotate(19deg);
+    }
+
+    .perch-line {
+      position: absolute;
+      right: 58px;
+      top: 112px;
+      width: 115px;
+      height: 9px;
+      border-radius: 999px;
+      z-index: 3;
+      background: linear-gradient(90deg, #895d34, #d49a5b, #875931);
+      box-shadow: 0 5px 9px rgba(76, 47, 22, .18);
+    }
+
+    .shop-tabs {
+      top: 154px;
+      left: 14px;
+      right: 14px;
+      min-height: 58px;
+      border-radius: 24px 24px 12px 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+      padding: 5px;
+      background: rgba(255, 250, 236, .88);
+      z-index: 5;
+    }
+
+    .category-tab {
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: 24px auto;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+
+    .category-tab.active {
+      background: linear-gradient(180deg, #ffe6a8, #ffd37d);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+    }
+
+    .tab-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .shop-sheet {
+      left: 14px;
+      right: 14px;
+      top: 206px;
+      bottom: 64px;
+      overflow: auto;
+      border-radius: 0 0 24px 24px;
+      padding: 18px 14px 16px;
+      background: var(--shop-paper);
+      box-shadow: 0 18px 40px rgba(91, 63, 34, .16);
+      scrollbar-width: thin;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1;
+      letter-spacing: 0;
+      font-weight: 1000;
+    }
+
+    .leaf {
+      color: #9ab36d;
+      font-size: 18px;
+    }
+
+    .section-copy {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .product-card {
+      position: relative;
+      min-height: 236px;
+      border-radius: 14px;
+      padding: 13px 10px 11px;
+      background: linear-gradient(180deg, rgba(255, 252, 244, .98), rgba(255, 242, 211, .92));
+      box-shadow: 0 7px 17px rgba(91, 63, 34, .1);
+      overflow: hidden;
+    }
+
+    .product-title {
+      margin: 0;
+      padding-right: 24px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 1000;
+      line-height: 1.25;
+    }
+
+    .heart-button {
+      position: absolute;
+      right: 8px;
+      top: 9px;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: transparent;
+      color: #c9ad82;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .heart-button.active {
+      color: #e87572;
+      text-shadow: 0 2px 7px rgba(232, 117, 114, .25);
+    }
+
+    .product-art {
+      height: 82px;
+      margin: 9px auto 7px;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .product-art span {
+      display: grid;
+      place-items: center;
+      width: 76px;
+      height: 64px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 36% 28%, rgba(255,255,255,.72), transparent 34%),
+        linear-gradient(145deg, #fff2cc, #e7bf7b);
+      box-shadow: inset 0 -8px 14px rgba(124, 77, 32, .11), 0 9px 16px rgba(96, 63, 29, .14);
+      font-size: 36px;
+    }
+
+    .art-perch span { border-radius: 50%; }
+    .art-plants span { background: linear-gradient(145deg, #eff6dc, #d4a96f); }
+    .art-bed span { border-radius: 50%; background: repeating-linear-gradient(90deg, #c6dfd8 0 10px, #fff0c9 10px 20px); }
+    .art-lamp span { background: radial-gradient(circle, #ffe79a, #efd19e 45%, #524235 48%); }
+    .art-wall span { background: linear-gradient(145deg, #bfe2e4, #f8ead0); }
+    .art-food span { background: linear-gradient(145deg, #f9e2a5, #e8ba74); }
+    .art-toy span { background: linear-gradient(145deg, #f2d6b1, #d7a468); }
+
+    .product-desc {
+      min-height: 39px;
+      margin: 0 0 8px;
+      color: #6d543b;
+      font-size: 12px;
+      line-height: 1.55;
+      text-align: center;
+      font-weight: 850;
+    }
+
+    .price {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 9px;
+      font-size: 20px;
+      font-weight: 1000;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .acorn {
+      position: relative;
+      display: inline-block;
+      width: 18px;
+      height: 20px;
+      border-radius: 46% 46% 54% 54%;
+      background: linear-gradient(145deg, #d87931, #a95d25);
+      box-shadow: inset -3px -4px 5px rgba(84, 42, 14, .14);
+      transform: rotate(-18deg);
+      flex: 0 0 auto;
+    }
+
+    .acorn::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: -5px;
+      width: 20px;
+      height: 9px;
+      border-radius: 50% 50% 38% 38%;
+      background: #8f6d34;
+    }
+
+    .acorn::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: -8px;
+      width: 10px;
+      height: 8px;
+      border-top: 3px solid #6d8a3e;
+      border-radius: 50%;
+      transform: rotate(26deg);
+    }
+
+    .buy-button {
+      width: 100%;
+      min-height: 34px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffe3a9, #f6c772);
+      color: #563b24;
+      font-size: 13px;
+      font-weight: 1000;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+      transition: transform .16s ease, filter .16s ease;
+    }
+
+    .buy-button:disabled {
+      opacity: .62;
+      cursor: default;
+    }
+
+    .recommend {
+      margin-top: 18px;
+      padding-top: 13px;
+      border-top: 1px solid rgba(101, 72, 43, .12);
+    }
+
+    .sets-row {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(210px, 72%);
+      gap: 10px;
+      overflow-x: auto;
+      padding: 0 2px 6px;
+      scroll-snap-type: x proximity;
+      scrollbar-width: thin;
+    }
+
+    .set-card {
+      scroll-snap-align: start;
+      min-height: 104px;
+      border-radius: 15px;
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 10px;
+      padding: 9px;
+      background: linear-gradient(180deg, rgba(255,252,244,.98), rgba(255,239,206,.94));
+    }
+
+    .set-preview {
+      border-radius: 13px;
+      background:
+        linear-gradient(rgba(255,255,255,.14), rgba(255,255,255,.14)),
+        url("assets/inko-dollhouse-bg.png");
+      background-size: 240px auto;
+      background-position: center;
+      box-shadow: inset 0 0 0 1px rgba(101,72,43,.1);
+    }
+
+    .set-card h3 {
+      margin: 2px 0 6px;
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 1000;
+      color: #397b73;
+    }
+
+    .set-icons {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .set-icons span {
+      width: 28px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: rgba(255,255,255,.58);
+      font-size: 15px;
+    }
+
+    .set-price {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      font-weight: 1000;
+    }
+
+    .badge {
+      padding: 4px 6px;
+      border-radius: 7px;
+      background: #ff8e86;
+      color: white;
+      font-size: 10px;
+      font-weight: 1000;
+    }
+
+    .nav-bar {
+      left: 12px;
+      right: 12px;
+      bottom: max(8px, env(safe-area-inset-bottom));
+      min-height: 56px;
+      border-radius: 20px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 3px;
+      padding: 5px;
+      background: rgba(255, 250, 236, .62);
+      box-shadow: 0 10px 24px rgba(73, 52, 29, .12);
+      z-index: 20;
+    }
+
+    .nav-item {
+      position: relative;
+      border-radius: 15px;
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: 1px;
+      background: transparent;
+      font-size: 10px;
+      font-weight: 1000;
+      color: rgba(90, 66, 45, .82);
+      transition: transform .16s ease, background .16s ease;
+    }
+
+    .nav-item.active {
+      background: rgba(255, 222, 145, .48);
+      color: var(--ink);
+    }
+
+    .nav-icon {
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .nav-notice {
+      position: absolute;
+      right: 15px;
+      top: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff725d;
+    }
+
+    .toast {
+      left: 50%;
+      bottom: 150px;
+      transform: translateX(-50%) translateY(14px);
+      z-index: 30;
+      padding: 10px 15px;
+      border-radius: 999px;
+      background: rgba(255, 251, 239, .95);
+      box-shadow: 0 12px 28px rgba(73, 49, 28, .18);
+      font-weight: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .sparkles {
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .spark {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      transform: rotate(45deg);
+      background: #fff2a8;
+      box-shadow: 0 0 14px rgba(255, 234, 116, .8);
+      animation: sparkle .9s ease-out forwards;
+    }
+
+    @keyframes sparkle {
+      from { opacity: 0; transform: translateY(18px) rotate(45deg) scale(.4); }
+      35% { opacity: 1; }
+      to { opacity: 0; transform: translateY(-42px) rotate(45deg) scale(1); }
+    }
+
+    .zzz-effect {
+      position: absolute;
+      z-index: 4;
+      left: var(--zzz-x, 64%);
+      top: var(--zzz-y, 20%);
+      width: 74px;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      filter: drop-shadow(0 8px 10px rgba(69, 47, 25, .1));
+      transition: opacity .25s ease, left 1.5s ease, top 1.5s ease;
+    }
+
+    .zzz-effect.show {
+      opacity: .95;
+      animation: zzzFloat 2.8s ease-in-out infinite;
+    }
+
+    @keyframes zzzFloat {
+      0%, 100% { transform: translate(-50%, -50%); }
+      50% { transform: translate(-50%, -62%); }
+    }
+
+    .placeholder-card {
+      left: 28px;
+      right: 28px;
+      top: 40%;
+      transform: translateY(-50%);
+      min-height: 170px;
+      border-radius: 26px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+      background: rgba(255, 250, 236, .86);
+    }
+
+    .placeholder-card h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .placeholder-card p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 900;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 420px) {
+      .phone {
+        width: 100vw;
+        height: 100vh;
+        aspect-ratio: auto;
+        min-height: 690px;
+      }
+
+      .top-bar {
+        left: 10px;
+        right: 10px;
+        gap: 7px;
+      }
+
+      .weather {
+        min-width: 88px;
+        min-height: 46px;
+        grid-template-columns: 27px 1fr;
+        padding: 7px 8px;
+        font-size: 13px;
+      }
+
+      .sun { width: 26px; height: 26px; }
+
+      .profile {
+        min-width: 144px;
+        min-height: 52px;
+        grid-template-columns: 35px 1fr;
+        padding: 7px 9px;
+      }
+
+      .avatar { width: 35px; height: 35px; }
+      .name { font-size: 17px; }
+
+      .left-rail {
+        left: 10px;
+        top: 84px;
+      }
+
+      .round-tool,
+      .mood-button {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+      }
+
+      .mood-button {
+        right: 10px;
+        top: 72px;
+      }
+
+      .mood-panel {
+        right: 10px;
+        top: 124px;
+        width: 140px;
+      }
+
+      .care-row {
+        left: 10px;
+        right: 10px;
+        bottom: 67px;
+        gap: 7px;
+      }
+
+      .care {
+        min-height: 61px;
+        border-radius: 19px;
+      }
+
+      .care-icon { font-size: 21px; }
+      .care-label { font-size: 11px; }
+
+      .shop-top {
+        left: 10px;
+        right: 10px;
+        grid-template-columns: 46px 1fr 98px;
+        gap: 7px;
+      }
+
+      .back-button {
+        width: 46px;
+        height: 46px;
+      }
+
+      .wood-sign {
+        min-height: 86px;
+        border-radius: 21px;
+      }
+
+      .wood-sign h1 { font-size: 28px; }
+      .wood-sign p { font-size: 11px; }
+
+      .nut-wallet {
+        grid-template-columns: 28px 1fr;
+        min-height: 52px;
+        border-radius: 19px;
+        padding: 8px;
+      }
+
+      .nut-wallet strong { font-size: 20px; }
+
+      .shop-bird {
+        right: 56px;
+        top: 64px;
+        width: 80px;
+      }
+
+      .perch-line {
+        right: 45px;
+        top: 110px;
+        width: 100px;
+      }
+
+      .shop-tabs {
+        left: 10px;
+        right: 10px;
+        top: 150px;
+        min-height: 55px;
+      }
+
+      .category-tab {
+        grid-template-columns: 20px auto;
+        gap: 4px;
+        font-size: 13px;
+      }
+
+      .tab-icon { font-size: 18px; }
+
+      .shop-sheet {
+        left: 10px;
+        right: 10px;
+        top: 199px;
+        bottom: 60px;
+        padding: 16px 10px 14px;
+      }
+
+      .product-grid {
+        gap: 8px;
+      }
+
+      .product-card {
+        min-height: 223px;
+        padding: 11px 8px 9px;
+      }
+
+      .product-title { font-size: 13px; }
+      .product-art { height: 76px; }
+      .product-art span { width: 68px; height: 58px; font-size: 32px; }
+      .product-desc { font-size: 11px; }
+      .price { font-size: 18px; }
+
+      .nav-bar {
+        left: 8px;
+        right: 8px;
+        min-height: 52px;
+        border-radius: 18px;
+      }
+
+      .nav-icon { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" aria-label="もっちんの部屋">
+    <section class="screen active" id="homeScreen" aria-label="ホーム">
+      <div class="room"></div>
+      <div class="furniture-layer" aria-hidden="true">
+        <img class="furniture bed" src="assets/home/bed.png" alt="" />
+        <img class="furniture toy" id="toyFigure" src="assets/home/toy.png" alt="" />
+        <img class="furniture swing" src="assets/home/swing.png" alt="" />
+        <img class="furniture food" src="assets/home/food.png" alt="" />
+        <img class="furniture perch" src="assets/home/perch.png" alt="" />
+      </div>
+      <div class="poop-layer" id="poopLayer" aria-hidden="true"></div>
+      <div class="bird-layer" aria-hidden="true">
+        <div class="live-bird" id="liveBird">
+          <img id="birdImage" src="assets/home/inko.png" alt="" />
+        </div>
+      </div>
+      <div class="effect-layer" aria-hidden="true">
+        <img class="zzz-effect" id="zzzEffect" src="assets/home/zzz.png" alt="" />
+        <div class="lantern-glow is-off" id="lanternGlow"></div>
+      </div>
+      <div class="time-tint day" id="timeTint" aria-hidden="true"></div>
+      <div class="vignette"></div>
+      <div class="sparkles" id="sparkles"></div>
+
+      <section class="top-bar" aria-label="ホーム情報">
+        <div class="weather">
+          <span class="sun" aria-hidden="true"></span>
+          <span>晴れ<span class="time" id="clock">07:32</span></span>
+        </div>
+
+        <div class="profile">
+          <span class="avatar" aria-hidden="true"></span>
+          <div>
+            <h1 class="name">もっちん</h1>
+            <div class="subtitle">今日もお部屋でのんびり</div>
+          </div>
+        </div>
+        <span></span>
+      </section>
+
+      <nav class="left-rail" aria-label="ショートカット">
+        <button class="round-tool" data-message="カメラをかまえました"><span aria-hidden="true">📷</span><small>カメラ</small></button>
+        <button class="round-tool" data-message="新しいミッションがあります"><span class="notice"></span><span aria-hidden="true">📋</span><small>ミッション</small></button>
+      </nav>
+
+      <button class="mood-button" id="moodButton" aria-expanded="false" aria-controls="moodPanel" aria-label="もっちんの様子">
+        <span aria-hidden="true">😊</span>
+      </button>
+
+      <aside class="mood-panel" id="moodPanel" aria-label="もっちんの様子">
+        <div class="status-item">
+          <span aria-hidden="true">😊</span>
+          <div>
+            <div class="status-label">ごきげん</div>
+            <div class="dots" id="moodDots"></div>
+          </div>
+        </div>
+        <div class="status-item">
+          <span aria-hidden="true">🍚</span>
+          <div>
+            <div class="status-label">おなか</div>
+            <div class="dots" id="hungerDots"></div>
+          </div>
+        </div>
+        <div class="status-item">
+          <span aria-hidden="true">🌙</span>
+          <div>
+            <div class="status-label">ねむさ</div>
+            <div class="dots" id="sleepDots"></div>
+          </div>
+        </div>
+        <div class="status-item">
+          <span aria-hidden="true">✨</span>
+          <div>
+            <div class="status-label">きれいさ</div>
+            <div class="dots" id="cleanDots"></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="bird-bubble" id="birdBubble" aria-live="polite">♪</div>
+
+      <section class="care-row" aria-label="おせわ">
+        <button class="care" data-action="feed"><span class="care-icon" aria-hidden="true">🥣</span><span class="care-label">ごはん</span></button>
+        <button class="care" data-action="pet"><span class="care-icon" aria-hidden="true">🖐️</span><span class="care-label">なでる</span></button>
+        <button class="care" data-action="toy"><span class="care-icon" aria-hidden="true">🧸</span><span class="care-label">おもちゃ</span></button>
+        <button class="care" data-action="clean"><span class="care-icon" aria-hidden="true">🧹</span><span class="care-label">そうじ</span></button>
+      </section>
+    </section>
+
+    <section class="screen" id="shopScreen" aria-label="ショップ">
+      <div class="shop-bg"></div>
+      <div class="vignette"></div>
+      <div class="shop-top">
+        <button class="back-button" id="shopBack" aria-label="ホームへ戻る">‹</button>
+        <div class="wood-sign">
+          <span class="vine left"></span>
+          <span class="vine right"></span>
+          <div>
+            <h1>ショップ</h1>
+            <p>インコの暮らしをもっと素敵に♪</p>
+          </div>
+        </div>
+        <div class="nut-wallet" aria-label="木の実ポイント">
+          <span class="acorn" aria-hidden="true"></span>
+          <span><small>木の実</small><strong id="nutCount">1,244</strong></span>
+        </div>
+      </div>
+      <div class="shop-bird" aria-hidden="true"></div>
+      <div class="perch-line" aria-hidden="true"></div>
+
+      <nav class="shop-tabs" aria-label="ショップカテゴリ">
+        <button class="category-tab active" data-category="furniture"><span class="tab-icon" aria-hidden="true">🪑</span><span>家具</span></button>
+        <button class="category-tab" data-category="toy"><span class="tab-icon" aria-hidden="true">🧸</span><span>おもちゃ</span></button>
+        <button class="category-tab" data-category="food"><span class="tab-icon" aria-hidden="true">🥣</span><span>ごはん</span></button>
+        <button class="category-tab" data-category="wall"><span class="tab-icon" aria-hidden="true">🧻</span><span>壁紙</span></button>
+      </nav>
+
+      <section class="shop-sheet">
+        <div class="section-head">
+          <h2><span class="leaf">✤</span> <span id="categoryTitle">家具</span> <span class="leaf">❧</span></h2>
+          <div class="section-copy" id="categoryCopy">インコがくつろげる家具をそろえよう♪</div>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+
+        <section class="recommend" aria-label="おすすめセット">
+          <div class="section-head">
+            <h2><span class="leaf">✤</span> おすすめセット <span class="leaf">❧</span></h2>
+            <div class="section-copy">横にスライドできます</div>
+          </div>
+          <div class="sets-row" id="setsRow"></div>
+        </section>
+      </section>
+    </section>
+
+    <section class="screen" id="placeholderScreen" aria-label="仮画面">
+      <div class="shop-bg"></div>
+      <div class="vignette"></div>
+      <div class="placeholder-card">
+        <div>
+          <h1 id="placeholderTitle">インテリア</h1>
+          <p>ここは次に作る予定の仮画面です。<br>今はホームとショップの雰囲気確認用です。</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="toast" id="toast">購入しました</div>
+
+    <nav class="nav-bar" aria-label="メニュー">
+      <button class="nav-item active" data-screen="home"><span class="nav-icon" aria-hidden="true">🏠</span><span>ホーム</span></button>
+      <button class="nav-item" data-screen="shop"><span class="nav-notice"></span><span class="nav-icon" aria-hidden="true">🧺</span><span>ショップ</span></button>
+      <button class="nav-item" data-screen="interior"><span class="nav-icon" aria-hidden="true">🪴</span><span>インテリア</span></button>
+      <button class="nav-item" data-screen="book"><span class="nav-icon" aria-hidden="true">📖</span><span>ずかん</span></button>
+      <button class="nav-item" data-screen="letter"><span class="nav-notice"></span><span class="nav-icon" aria-hidden="true">✉️</span><span>通信</span></button>
+    </nav>
+  </main>
+
+  <script>
+    const screens = {
+      home: document.querySelector("#homeScreen"),
+      shop: document.querySelector("#shopScreen"),
+      placeholder: document.querySelector("#placeholderScreen")
+    };
+    const liveBird = document.querySelector("#liveBird");
+    const birdBubble = document.querySelector("#birdBubble");
+    const toast = document.querySelector("#toast");
+    const sparkles = document.querySelector("#sparkles");
+    const clock = document.querySelector("#clock");
+    const moodButton = document.querySelector("#moodButton");
+    const moodPanel = document.querySelector("#moodPanel");
+    const productGrid = document.querySelector("#productGrid");
+    const setsRow = document.querySelector("#setsRow");
+    const categoryTitle = document.querySelector("#categoryTitle");
+    const categoryCopy = document.querySelector("#categoryCopy");
+    const nutCount = document.querySelector("#nutCount");
+    const placeholderTitle = document.querySelector("#placeholderTitle");
+    const birdImage = document.querySelector("#birdImage");
+    const zzzEffect = document.querySelector("#zzzEffect");
+    const lanternGlow = document.querySelector("#lanternGlow");
+    const timeTint = document.querySelector("#timeTint");
+    const toyFigure = document.querySelector("#toyFigure");
+    const poopLayer = document.querySelector("#poopLayer");
+
+    const STORAGE_KEY = "mocchinObservationPrototype";
+    const SMALL_ACTION_MIN_MS = 3000;
+    const SMALL_ACTION_MAX_MS = 8000;
+    const MOVE_ACTION_MIN_MS = 10000;
+    const MOVE_ACTION_MAX_MS = 25000;
+    const POOP_THRESHOLD = 100;
+    const POOP_TICK_MS = 5000;
+    const POOP_TIME_GAIN = 8;
+    const POOP_FOOD_GAIN = 45;
+    const POOP_WALK_GAIN = 18;
+    const POOP_TOY_GAIN = 14;
+    const MAX_POOPS = 20;
+
+    const defaultFurnitureState = {
+      perch: { x: 52, y: 58 },
+      bed: { x: 63, y: 24 },
+      food: { x: 25, y: 70 },
+      swing: { x: 70, y: 53 },
+      toy: { x: 45, y: 27 }
+    };
+
+    const furnitureSizes = {
+      perch: 31,
+      bed: 26,
+      food: 32,
+      swing: 24,
+      toy: 18
+    };
+
+    const landingOffsets = {
+      perch: { x: 0, y: -11 },
+      bed: { x: 0, y: -1 },
+      food: { x: 0, y: -4 },
+      swing: { x: 0, y: -4 },
+      toy: { x: 10, y: 1 }
+    };
+
+    const placeMeta = {
+      perch: { scale: .8, width: 104, bubble: { x: 7, y: -8 }, zzz: { x: 7, y: -9 } },
+      bed: { scale: .72, width: 98, bubble: { x: 7, y: -7 }, zzz: { x: 6, y: -8 } },
+      food: { scale: .76, width: 98, bubble: { x: 9, y: -8 }, zzz: { x: 7, y: -9 } },
+      swing: { scale: .68, width: 94, bubble: { x: 7, y: -8 }, zzz: { x: 6, y: -10 } },
+      toy: { scale: 1, width: 132, height: 66, bubble: { x: 4, y: -8 }, zzz: { x: 5, y: -10 } }
+    };
+
+    const floorPlaces = {
+      floorLeft: { x: 33, y: 70, scale: .72, width: 90, bubbleX: 40, bubbleY: 62, zzzX: 39, zzzY: 61, isFloor: true },
+      floorCenter: { x: 49, y: 67, scale: .74, width: 92, bubbleX: 56, bubbleY: 59, zzzX: 55, zzzY: 58, isFloor: true },
+      floorRight: { x: 66, y: 65, scale: .72, width: 90, bubbleX: 73, bubbleY: 57, zzzX: 72, zzzY: 56, isFloor: true }
+    };
+
+    const defaultState = {
+      mood: 5,
+      hunger: 4,
+      sleep: 4,
+      clean: 4,
+      place: "perch",
+      mode: "normal",
+      nuts: 1244,
+      category: "furniture",
+      purchasedItems: [],
+      furnitureState: defaultFurnitureState,
+      poops: [],
+      poopGauge: 0
+    };
+
+    const persistedState = loadState();
+    const state = {
+      ...defaultState,
+      ...persistedState,
+      furnitureState: {
+        ...defaultFurnitureState,
+        ...(persistedState.furnitureState || {})
+      },
+      purchasedItems: Array.isArray(persistedState.purchasedItems) ? persistedState.purchasedItems : [],
+      poops: Array.isArray(persistedState.poops) ? persistedState.poops.slice(-MAX_POOPS) : [],
+      poopGauge: Number.isFinite(persistedState.poopGauge) ? persistedState.poopGauge : 0
+    };
+
+    let places = {};
+    const randomLines = ["♪", "♡", "ぴ", "ぴよ", "ぼー", "ねむい", "ごきげん", "なんかたべたい"];
+    const poopLines = ["ぷりっ", "ぷりっとした", "ぽとっ"];
+    const cleanLines = ["ありがと", "きれい！", "すっきり"];
+    const dirtyLines = ["むぅ", "くさい？", "うーん"];
+    const birdImages = {
+      normal: "assets/home/inko.png",
+      flying: "assets/home/inkofly.png",
+      sleeping: "assets/home/inkosleep.png",
+      attack: "assets/home/inkoattack.png",
+      walk: "assets/home/walk.png",
+      walk2: "assets/home/walk 2.png",
+      eat: "assets/home/eat.png",
+      preening: "assets/home/preening.png",
+      yawn: "assets/home/yawan.png",
+      tilt: "assets/home/tilt.png",
+      drinking: "assets/home/drinking water.png",
+      stretch: "assets/home/stretch.png",
+      poop: "assets/home/poop.png"
+    };
+    let toastTimer = 0;
+    let bubbleTimer = 0;
+    let smallActionTimer = 0;
+    let moveActionTimer = 0;
+    let poopTimer = 0;
+    let isPooping = false;
+    let behaviorTimers = [];
+    let walkFrameTimer = 0;
+
+    const categories = {
+      furniture: {
+        title: "家具",
+        copy: "インコがくつろげる家具をそろえよう♪",
+        items: [
+          { name: "白木の止まり木", desc: "ナチュラルな白木のシンプルな止まり木。", price: 120, art: "art-perch", icon: "🪵" },
+          { name: "植物ラック", desc: "グリーンでお部屋が明るくなるよ。", price: 180, art: "art-plants", icon: "🪴" },
+          { name: "北欧ソファ", desc: "ふかふかのソファでリラックス。", price: 240, art: "art-bed", icon: "🛋️" },
+          { name: "ハンモック", desc: "ゆらゆら揺れる小さなハンモック。", price: 160, art: "art-toy", icon: "〰️" },
+          { name: "丸い巣箱", desc: "落ち着けるまあるい巣箱。", price: 200, art: "art-wall", icon: "🏺" },
+          { name: "バードランプ", desc: "やさしい明かりの小さなランプ。", price: 150, art: "art-lamp", icon: "💡" },
+          { name: "ミニテーブル", desc: "ごはんやおやつを置けるテーブル。", price: 100, art: "art-perch", icon: "🪑" },
+          { name: "ラタンカゴ", desc: "ナチュラルなカゴでお部屋をおしゃれに。", price: 130, art: "art-plants", icon: "🧺" }
+        ]
+      },
+      toy: {
+        title: "おもちゃ",
+        copy: "ゆらゆら、ころころ、眺めて楽しい小物たち♪",
+        items: [
+          { name: "木のビーズブランコ", desc: "木の実色のビーズが揺れるブランコ。", price: 140, art: "art-toy", icon: "🪀" },
+          { name: "小さなベル", desc: "ちりんと鳴るかわいいベル。", price: 90, art: "art-lamp", icon: "🔔" },
+          { name: "まるい木玉", desc: "ころころ転がる木のおもちゃ。", price: 80, art: "art-perch", icon: "🟤" },
+          { name: "ミニはしご", desc: "上ったり降りたりできる小さなはしご。", price: 150, art: "art-perch", icon: "🪜" }
+        ]
+      },
+      food: {
+        title: "ごはん",
+        copy: "木の実や果物の小さなごちそう♪",
+        items: [
+          { name: "木の実ミックス", desc: "香ばしい木の実のごはん。", price: 70, art: "art-food", icon: "🌰" },
+          { name: "りんごキューブ", desc: "小さく切った甘いりんご。", price: 85, art: "art-food", icon: "🍎" },
+          { name: "青菜プレート", desc: "しゃきっと新鮮な葉っぱのプレート。", price: 95, art: "art-plants", icon: "🥬" },
+          { name: "ベリー小皿", desc: "色どりがかわいい小さなおやつ。", price: 110, art: "art-food", icon: "🫐" }
+        ]
+      },
+      wall: {
+        title: "壁紙",
+        copy: "白木のお部屋に似合うやさしい壁紙♪",
+        items: [
+          { name: "水色板壁", desc: "今のお部屋に近い明るい板壁。", price: 180, art: "art-wall", icon: "🧻" },
+          { name: "小花の壁紙", desc: "小さな花柄で春っぽく。", price: 210, art: "art-wall", icon: "🌼" },
+          { name: "クリーム漆喰", desc: "光がやわらかく見える壁紙。", price: 160, art: "art-wall", icon: "▫️" },
+          { name: "森の窓辺", desc: "植物が映えるグリーン系の壁紙。", price: 220, art: "art-plants", icon: "🌿" }
+        ]
+      }
+    };
+
+    const sets = [
+      { name: "ナチュラルセット", price: 550, icons: ["🪵", "🪴", "💡"] },
+      { name: "グリーンセット", price: 620, icons: ["🪑", "🪴", "💡"] },
+      { name: "リラックスセット", price: 580, icons: ["🛋️", "〰️", "🏺"] },
+      { name: "窓辺セット", price: 500, icons: ["🌿", "🧺", "🧻"] }
+    ];
+
+    function clamp(value, min = 0, max = 5) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function randomBetween(min, max) {
+      return Math.round(min + Math.random() * (max - min));
+    }
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveState() {
+      const saved = {
+        nuts: state.nuts,
+        mood: state.mood,
+        hunger: state.hunger,
+        sleep: state.sleep,
+        clean: state.clean,
+        purchasedItems: state.purchasedItems,
+        furnitureState: state.furnitureState,
+        poops: state.poops,
+        poopGauge: state.poopGauge
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }
+
+    function buildFurniturePlace(name) {
+      const furniture = state.furnitureState[name];
+      const offset = landingOffsets[name];
+      const meta = placeMeta[name];
+      const x = furniture.x + offset.x;
+      const y = furniture.y + offset.y;
+      return {
+        x,
+        y,
+        scale: meta.scale,
+        width: meta.width,
+        height: meta.height || meta.width,
+        bubbleX: x + meta.bubble.x,
+        bubbleY: y + meta.bubble.y,
+        zzzX: x + meta.zzz.x,
+        zzzY: y + meta.zzz.y
+      };
+    }
+
+    function updatePlaces() {
+      places = {
+        perch: buildFurniturePlace("perch"),
+        bed: buildFurniturePlace("bed"),
+        food: buildFurniturePlace("food"),
+        swing: buildFurniturePlace("swing"),
+        toy: buildFurniturePlace("toy"),
+        ...floorPlaces
+      };
+    }
+
+    function applyFurniturePositions() {
+      Object.entries(state.furnitureState).forEach(([name, position]) => {
+        const node = document.querySelector(`.furniture.${name}`);
+        if (!node) return;
+        node.style.setProperty("--x", `${position.x}%`);
+        node.style.setProperty("--y", `${position.y}%`);
+        node.style.setProperty("--w", `${furnitureSizes[name]}%`);
+      });
+      updatePlaces();
+    }
+
+    function showScreen(name) {
+      screens.home.classList.toggle("active", name === "home");
+      screens.shop.classList.toggle("active", name === "shop");
+      screens.placeholder.classList.toggle("active", !["home", "shop"].includes(name));
+      document.querySelectorAll(".nav-item").forEach(item => {
+        item.classList.toggle("active", item.dataset.screen === name);
+      });
+      if (!["home", "shop"].includes(name)) {
+        const labels = { interior: "インテリア", book: "ずかん", letter: "通信" };
+        placeholderTitle.textContent = labels[name] || "仮画面";
+      }
+      moodPanel.classList.remove("open");
+      moodButton.setAttribute("aria-expanded", "false");
+    }
+
+    function setDots(id, value, className) {
+      const node = document.querySelector(id);
+      node.innerHTML = "";
+      for (let i = 0; i < 5; i += 1) {
+        const dot = document.createElement("span");
+        if (i < value) dot.className = `on ${className}`;
+        node.appendChild(dot);
+      }
+    }
+
+    function renderMood() {
+      setDots("#moodDots", state.mood, "good");
+      setDots("#hungerDots", state.hunger, "food");
+      setDots("#sleepDots", state.sleep, "sleep");
+      setDots("#cleanDots", state.clean, "clean");
+      saveState();
+    }
+
+    function setBirdMode(mode) {
+      state.mode = mode;
+      birdImage.src = birdImages[mode] || birdImages.normal;
+      if (mode === "attack") {
+        liveBird.style.setProperty("--bird-w", "132px");
+        liveBird.style.setProperty("--bird-h", "66px");
+      } else if (mode === "drinking") {
+        liveBird.style.setProperty("--bird-w", "116px");
+        liveBird.style.setProperty("--bird-h", "78px");
+      } else if (mode === "walk" || mode === "walk2") {
+        liveBird.style.setProperty("--bird-w", "94px");
+        liveBird.style.setProperty("--bird-h", "76px");
+      } else {
+        const place = places[state.place] || places.perch;
+        liveBird.style.setProperty("--bird-w", `${place.width}px`);
+        liveBird.style.setProperty("--bird-h", `${place.height || place.width}px`);
+      }
+      zzzEffect.classList.toggle("show", mode === "sleeping");
+    }
+
+    function clearBehaviorTimers() {
+      behaviorTimers.forEach(timer => window.clearTimeout(timer));
+      behaviorTimers = [];
+      window.clearInterval(walkFrameTimer);
+      walkFrameTimer = 0;
+    }
+
+    function later(delay, task) {
+      const timer = window.setTimeout(task, delay);
+      behaviorTimers.push(timer);
+      return timer;
+    }
+
+    function setBirdAt(placeName) {
+      const place = places[placeName];
+      state.place = placeName;
+      liveBird.style.setProperty("--bird-x", `${place.x}%`);
+      liveBird.style.setProperty("--bird-y", `${place.y}%`);
+      liveBird.style.setProperty("--bird-scale", place.scale);
+      liveBird.style.setProperty("--bird-w", `${place.width}px`);
+      liveBird.style.setProperty("--bird-h", `${place.height || place.width}px`);
+      birdBubble.style.setProperty("--bubble-x", `${place.bubbleX}%`);
+      birdBubble.style.setProperty("--bubble-y", `${place.bubbleY}%`);
+      zzzEffect.style.setProperty("--zzz-x", `${place.zzzX}%`);
+      zzzEffect.style.setProperty("--zzz-y", `${place.zzzY}%`);
+    }
+
+    function moveBird(placeName, arrivalMode = "normal", travel = "fly") {
+      clearBehaviorTimers();
+      const place = places[placeName];
+      setBirdMode(travel === "walk" ? "walk" : "flying");
+      if (travel === "walk") {
+        let frame = false;
+        walkFrameTimer = window.setInterval(() => {
+          frame = !frame;
+          setBirdMode(frame ? "walk2" : "walk");
+        }, 260);
+      }
+      setBirdAt(placeName);
+      zzzEffect.classList.remove("show");
+      liveBird.classList.remove("moving");
+      void liveBird.offsetWidth;
+      liveBird.classList.add("moving");
+      later(travel === "walk" ? 1700 : 1250, () => {
+        window.clearInterval(walkFrameTimer);
+        walkFrameTimer = 0;
+        setBirdMode(arrivalMode);
+      });
+    }
+
+    function showBubble(message, duration = 1700) {
+      birdBubble.textContent = message;
+      birdBubble.classList.add("show");
+      window.clearTimeout(bubbleTimer);
+      bubbleTimer = window.setTimeout(() => birdBubble.classList.remove("show"), duration);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1200);
+    }
+
+    function addSparkles(count, around = places.perch) {
+      for (let i = 0; i < count; i += 1) {
+        const spark = document.createElement("span");
+        spark.className = "spark";
+        spark.style.left = `${around.x - 9 + Math.random() * 18}%`;
+        spark.style.top = `${around.y - 10 + Math.random() * 18}%`;
+        spark.style.animationDelay = `${i * 55}ms`;
+        sparkles.appendChild(spark);
+        spark.addEventListener("animationend", () => spark.remove());
+      }
+    }
+
+    function renderPoops() {
+      state.poops = state.poops.slice(-MAX_POOPS);
+      updateCleanFromPoops();
+      poopLayer.innerHTML = state.poops.map(poop => `
+        <img class="poop-mark" src="${birdImages.poop}" alt="" style="--poop-x:${poop.x}%; --poop-y:${poop.y}%; --poop-size:${poop.size || 24}px;" />
+      `).join("");
+      saveState();
+    }
+
+    function updateCleanFromPoops() {
+      const count = state.poops.length;
+      if (count <= 4) state.clean = 5;
+      else if (count <= 9) state.clean = 4;
+      else if (count <= 14) state.clean = 3;
+      else if (count <= 19) state.clean = 2;
+      else state.clean = 1;
+    }
+
+    function createPoop() {
+      const place = places[state.place] || places.perch;
+      const poopOffsets = {
+        perch: { x: 0, y: 9 },
+        bed: { x: -2, y: 8 },
+        food: { x: 2, y: 8 },
+        swing: { x: 0, y: 9 },
+        toy: { x: -2, y: 8 },
+        floorLeft: { x: 1, y: 6 },
+        floorCenter: { x: 1, y: 6 },
+        floorRight: { x: 1, y: 6 }
+      };
+      const offset = poopOffsets[state.place] || { x: 0, y: 8 };
+      const x = clamp(place.x + offset.x + randomBetween(-3, 3), 10, 90);
+      const y = clamp(place.y + offset.y + randomBetween(-2, 3), 12, 86);
+      state.poops.push({ x, y, size: randomBetween(26, 36) });
+      state.poops = state.poops.slice(-MAX_POOPS);
+      renderPoops();
+      renderMood();
+    }
+
+    function performPoop() {
+      if (isPooping) return;
+      isPooping = true;
+      state.poopGauge = 0;
+      setBirdMode(state.mode === "sleeping" ? "sleeping" : "normal");
+      showBubble("・・・", 650);
+      window.setTimeout(() => {
+        createPoop();
+        showBubble(poopLines[Math.floor(Math.random() * poopLines.length)], 1600);
+        isPooping = false;
+        saveState();
+      }, 500);
+    }
+
+    function gainPoopGauge(amount) {
+      if (isPooping) return;
+      state.poopGauge = Math.min(POOP_THRESHOLD + 40, state.poopGauge + amount);
+      if (state.poopGauge >= POOP_THRESHOLD) performPoop();
+      else saveState();
+    }
+
+    function startPoopGaugeTimer() {
+      window.clearInterval(poopTimer);
+      poopTimer = window.setInterval(() => {
+        if (screens.home.classList.contains("active")) gainPoopGauge(POOP_TIME_GAIN);
+      }, POOP_TICK_MS);
+    }
+
+    function randomPlace() {
+      const keys = Object.keys(places).filter(key => key !== state.place);
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    function nextLifeAction() {
+      if (state.hunger <= 1) return { type: "eat" };
+      if (state.sleep <= 1) return { type: "sleep" };
+      if (state.mood <= 1) return { type: "toy" };
+      const actions = [
+        { type: "perch", weight: 24 },
+        { type: "preen", weight: 16 },
+        { type: "floorWalk", weight: 22 },
+        { type: "eat", weight: 12 },
+        { type: "drink", weight: 10 },
+        { type: "swing", weight: 10 },
+        { type: "toy", weight: 8 },
+        { type: "sleep", weight: 8 }
+      ];
+      const total = actions.reduce((sum, action) => sum + action.weight, 0);
+      let cursor = Math.random() * total;
+      for (const action of actions) {
+        cursor -= action.weight;
+        if (cursor <= 0) return action;
+      }
+      return { type: "perch" };
+    }
+
+    function wobbleToy() {
+      toyFigure.classList.remove("wobble");
+      void toyFigure.offsetWidth;
+      toyFigure.classList.add("wobble");
+    }
+
+    function animateEating() {
+      const frames = ["eat", "normal", "eat", "normal", "eat", "normal"];
+      frames.forEach((frame, index) => later(index * 430, () => setBirdMode(frame)));
+      gainPoopGauge(POOP_FOOD_GAIN);
+    }
+
+    function animatePreening() {
+      setBirdMode("preening");
+      showBubble("きれいきれい", 1600);
+      later(3600, () => setBirdMode("normal"));
+    }
+
+    function animateTilt() {
+      setBirdMode("tilt");
+      if (Math.random() < .45) showBubble("ぴ？", 1100);
+      later(1700, () => setBirdMode("normal"));
+    }
+
+    function animateStretch() {
+      setBirdMode("stretch");
+      later(2200, () => setBirdMode("normal"));
+    }
+
+    function animateDrinking() {
+      const frames = ["drinking", "normal", "drinking", "normal"];
+      frames.forEach((frame, index) => later(index * 520, () => setBirdMode(frame)));
+      showBubble("ごくごく", 1300);
+    }
+
+    function animateSleep() {
+      setBirdMode("yawn");
+      showBubble("ねむい", 1400);
+      later(1500, () => setBirdMode("sleeping"));
+    }
+
+    function animateToyPeck() {
+      setBirdMode("attack");
+      gainPoopGauge(POOP_TOY_GAIN);
+      showBubble("♪", 1500);
+      later(250, wobbleToy);
+      later(1700, () => setBirdMode("normal"));
+    }
+
+    function smallHop() {
+      liveBird.classList.remove("moving");
+      void liveBird.offsetWidth;
+      liveBird.classList.add("moving");
+    }
+
+    function tinyWalkInPlace() {
+      if (!places[state.place]?.isFloor) {
+        smallHop();
+        return;
+      }
+      gainPoopGauge(POOP_WALK_GAIN);
+      let frame = false;
+      setBirdMode("walk");
+      const stepTimer = window.setInterval(() => {
+        frame = !frame;
+        setBirdMode(frame ? "walk2" : "walk");
+      }, 260);
+      later(1100, () => {
+        window.clearInterval(stepTimer);
+        setBirdMode("normal");
+      });
+    }
+
+    function runSmallAction() {
+      if (["flying", "walk", "walk2", "attack", "preening", "eat", "yawn", "tilt", "drinking", "stretch"].includes(state.mode)) return;
+      if (state.mode === "sleeping") {
+        if (Math.random() < .45) showBubble("すやすや", 1200);
+        return;
+      }
+
+      const place = state.place;
+      const actions = ["bubble", "hop", "tilt", "tilt"];
+      const isFloor = Boolean(places[place]?.isFloor);
+      if (place === "perch" || place === "swing" || isFloor) actions.push("preen", "stretch");
+      if (place === "food") actions.push("eat", "drink", "drink");
+      if (place === "bed") actions.push("yawn");
+      if (place === "toy") actions.push("peck");
+      if (isFloor) actions.push("tinyWalk", "tinyWalk", "stretch");
+      if (state.clean <= 2 || state.poops.length >= 10) actions.push("dirty", "dirty");
+
+      const action = actions[Math.floor(Math.random() * actions.length)];
+      if (action === "preen") {
+        animatePreening();
+        return;
+      }
+      if (action === "tilt") {
+        animateTilt();
+        return;
+      }
+      if (action === "stretch") {
+        animateStretch();
+        return;
+      }
+      if (action === "drink") {
+        animateDrinking();
+        return;
+      }
+      if (action === "eat") {
+        animateEating();
+        showBubble("もぐもぐ", 1200);
+        state.hunger = clamp(state.hunger + 1);
+        renderMood();
+        return;
+      }
+      if (action === "yawn") {
+        setBirdMode("yawn");
+        showBubble("ふぁ…", 1200);
+        later(1200, () => setBirdMode(place === "bed" ? "sleeping" : "normal"));
+        return;
+      }
+      if (action === "peck") {
+        animateToyPeck();
+        return;
+      }
+      if (action === "tinyWalk") {
+        tinyWalkInPlace();
+        return;
+      }
+      if (action === "hop") {
+        smallHop();
+        return;
+      }
+      if (action === "dirty") {
+        showBubble(dirtyLines[Math.floor(Math.random() * dirtyLines.length)], 1500);
+        return;
+      }
+      showBubble(randomLines[Math.floor(Math.random() * randomLines.length)], 1200);
+    }
+
+    function scheduleSmallAction() {
+      window.clearTimeout(smallActionTimer);
+      smallActionTimer = window.setTimeout(smallLife, randomBetween(SMALL_ACTION_MIN_MS, SMALL_ACTION_MAX_MS));
+    }
+
+    function scheduleMoveAction() {
+      window.clearTimeout(moveActionTimer);
+      moveActionTimer = window.setTimeout(moveLife, randomBetween(MOVE_ACTION_MIN_MS, MOVE_ACTION_MAX_MS));
+    }
+
+    function smallLife() {
+      if (screens.home.classList.contains("active")) runSmallAction();
+      scheduleSmallAction();
+    }
+
+    function moveLife() {
+      if (screens.home.classList.contains("active")) {
+        const action = nextLifeAction();
+        runLifeAction(action.type);
+        state.hunger = clamp(state.hunger - (Math.random() < .55 ? 1 : 0));
+        state.sleep = clamp(state.sleep - (Math.random() < .42 ? 1 : 0));
+        state.mood = clamp(state.mood - (Math.random() < .3 ? 1 : 0));
+        renderMood();
+      }
+      scheduleMoveAction();
+    }
+
+    function runLifeAction(type) {
+      if (type === "eat") {
+        moveBird("food");
+        state.hunger = clamp(state.hunger + 2);
+        showBubble("もぐもぐ", 1800);
+        later(1300, animateEating);
+        return;
+      }
+      if (type === "drink") {
+        moveBird("food", "normal");
+        later(1300, animateDrinking);
+        return;
+      }
+      if (type === "sleep") {
+        moveBird("bed", "yawn");
+        state.sleep = clamp(state.sleep + 2);
+        later(1300, animateSleep);
+        return;
+      }
+      if (type === "toy") {
+        moveBird("toy", "attack");
+        state.mood = clamp(state.mood + 2);
+        later(1300, animateToyPeck);
+        return;
+      }
+      if (type === "preen") {
+        const floorKeys = ["floorLeft", "floorCenter", "floorRight"];
+        const place = floorKeys.includes(state.place) ? state.place : Math.random() < .6 ? "perch" : "swing";
+        moveBird(place, "normal");
+        state.mood = clamp(state.mood + 1);
+        later(1400, animatePreening);
+        return;
+      }
+      if (type === "floorWalk") {
+        const floorKeys = ["floorLeft", "floorCenter", "floorRight"];
+        const destination = floorKeys[Math.floor(Math.random() * floorKeys.length)];
+        if (!floorKeys.includes(state.place)) {
+          moveBird(destination, "walk");
+          later(1800, () => {
+            const nextFloor = floorKeys.filter(key => key !== destination)[Math.floor(Math.random() * 2)];
+            moveBird(nextFloor, "walk", "walk");
+            gainPoopGauge(POOP_WALK_GAIN);
+          });
+          return;
+        }
+        const nextFloor = floorKeys.filter(key => key !== state.place)[Math.floor(Math.random() * 2)];
+        moveBird(nextFloor, "walk", "walk");
+        gainPoopGauge(POOP_WALK_GAIN);
+        showBubble(randomLines[Math.floor(Math.random() * randomLines.length)], 1300);
+        return;
+      }
+      if (type === "swing") {
+        moveBird("swing", "normal");
+        state.mood = clamp(state.mood + 1);
+        if (Math.random() < .55) later(1600, animatePreening);
+        return;
+      }
+      moveBird("perch", "normal");
+      if (Math.random() < .35) later(1800, animatePreening);
+    }
+
+    function renderProducts() {
+      const category = categories[state.category];
+      categoryTitle.textContent = category.title;
+      categoryCopy.textContent = category.copy;
+      productGrid.innerHTML = category.items.map((item, index) => `
+        <article class="product-card">
+          <button class="heart-button" aria-label="${item.name}をお気に入りにする" data-heart>♡</button>
+          <h3 class="product-title">${item.name}</h3>
+          <div class="product-art ${item.art}"><span>${item.icon}</span></div>
+          <p class="product-desc">${item.desc}</p>
+          <div class="price"><span class="acorn" aria-hidden="true"></span><span>${item.price}</span></div>
+          <button class="buy-button" data-price="${item.price}" data-name="${item.name}">購入する</button>
+        </article>
+      `).join("");
+    }
+
+    function renderSets() {
+      setsRow.innerHTML = sets.map(set => `
+        <article class="set-card">
+          <div class="set-preview"></div>
+          <div>
+            <h3>${set.name}</h3>
+            <div class="set-icons">${set.icons.map(icon => `<span>${icon}</span>`).join("")}</div>
+            <div class="set-price"><span class="acorn" aria-hidden="true"></span><strong>${set.price}</strong><span class="badge">10% OFF</span></div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderNuts() {
+      nutCount.textContent = state.nuts.toLocaleString("ja-JP");
+      saveState();
+    }
+
+    document.querySelectorAll("[data-action]").forEach(button => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.action;
+        if (action === "feed") {
+          state.hunger = clamp(state.hunger + 2);
+          moveBird("food");
+          showBubble("おいしい");
+          later(1300, animateEating);
+          showToast("ごはんをあげました");
+        }
+        if (action === "pet") {
+          state.mood = clamp(state.mood + 1);
+          showBubble("♡");
+          if (["perch", "swing"].includes(state.place)) animatePreening();
+          showToast("もっちんがうれしそう");
+        }
+        if (action === "toy") {
+          state.mood = clamp(state.mood + 2);
+          state.sleep = clamp(state.sleep - 1);
+          moveBird("toy", "attack");
+          later(1300, animateToyPeck);
+          showBubble("♪");
+          showToast("おもちゃをつつきました");
+        }
+        if (action === "clean") {
+          state.clean = 5;
+          state.poops = [];
+          state.poopGauge = 0;
+          renderPoops();
+          showBubble(cleanLines[Math.floor(Math.random() * cleanLines.length)], 1700);
+          addSparkles(12, places[state.place]);
+        }
+        renderMood();
+      });
+    });
+
+    document.querySelectorAll("[data-message]").forEach(button => {
+      button.addEventListener("click", () => {
+        showToast(button.dataset.message);
+        addSparkles(5, places[state.place]);
+      });
+    });
+
+    document.querySelectorAll(".nav-item").forEach(button => {
+      button.addEventListener("click", () => showScreen(button.dataset.screen));
+    });
+
+    document.querySelector("#shopBack").addEventListener("click", () => showScreen("home"));
+
+    document.querySelectorAll(".category-tab").forEach(button => {
+      button.addEventListener("click", () => {
+        state.category = button.dataset.category;
+        document.querySelectorAll(".category-tab").forEach(tab => tab.classList.remove("active"));
+        button.classList.add("active");
+        renderProducts();
+      });
+    });
+
+    productGrid.addEventListener("click", event => {
+      const heart = event.target.closest("[data-heart]");
+      if (heart) {
+        heart.classList.toggle("active");
+        heart.textContent = heart.classList.contains("active") ? "♥" : "♡";
+        return;
+      }
+
+      const buy = event.target.closest(".buy-button");
+      if (!buy) return;
+      const price = Number(buy.dataset.price);
+      if (state.nuts < price) {
+        showToast("木の実が足りません");
+        return;
+      }
+      state.nuts -= price;
+      state.purchasedItems.push(buy.dataset.name);
+      renderNuts();
+      showToast("購入しました");
+    });
+
+    moodButton.addEventListener("click", () => {
+      const isOpen = moodPanel.classList.toggle("open");
+      moodButton.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.addEventListener("click", event => {
+      if (!moodPanel.contains(event.target) && !moodButton.contains(event.target)) {
+        moodPanel.classList.remove("open");
+        moodButton.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    function updateClock() {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+      updateTimeOfDay(now);
+    }
+
+    function updateTimeOfDay(now = new Date()) {
+      const hour = now.getHours();
+      let period = "night";
+      if (hour >= 5 && hour < 10) period = "morning";
+      else if (hour >= 10 && hour < 16) period = "day";
+      else if (hour >= 16 && hour < 19) period = "evening";
+      timeTint.className = `time-tint ${period}`;
+      lanternGlow.classList.toggle("is-off", period !== "night");
+    }
+
+    applyFurniturePositions();
+    renderPoops();
+    renderMood();
+    renderProducts();
+    renderSets();
+    renderNuts();
+    setBirdAt("perch");
+    setBirdMode("normal");
+    showBubble("♪", 1400);
+    updateClock();
+    window.setInterval(updateClock, 30000);
+    startPoopGaugeTimer();
+    scheduleSmallAction();
+    scheduleMoveAction();
+  </script>
+</body>
+</html>
