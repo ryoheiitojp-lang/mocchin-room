@@ -268,6 +268,7 @@
 
     .weather,
     .profile,
+    .home-nut-box,
     .round-tool,
     .mood-button,
     .mood-panel,
@@ -284,6 +285,213 @@
       background: var(--paper);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
+    }
+
+    .home-nut-box {
+      pointer-events: auto;
+      justify-self: end;
+      min-width: 74px;
+      min-height: 46px;
+      border-radius: 17px;
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 7px;
+      align-items: center;
+      padding: 7px 9px;
+      background: rgba(255, 250, 236, .7);
+      font-size: 14px;
+      font-weight: 1000;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .home-nut-box .acorn {
+      transform: rotate(-18deg) scale(.82);
+    }
+
+    .discovery-sheet {
+      position: absolute;
+      z-index: 10;
+      left: 14px;
+      right: 14px;
+      top: max(18px, env(safe-area-inset-top));
+      bottom: 66px;
+      overflow: auto;
+      border-radius: 24px;
+      padding: 20px 16px;
+      background: rgba(255, 249, 232, .94);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      scrollbar-width: thin;
+    }
+
+    .discovery-head {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .discovery-head h1 {
+      margin: 0;
+      font-size: 27px;
+      line-height: 1.1;
+    }
+
+    .discovery-count {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .discovery-section-title {
+      margin: 20px 0 10px;
+      font-size: 16px;
+      font-weight: 1000;
+    }
+
+    .discovery-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .discovery-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 5px 12px rgba(73,52,29,.07);
+    }
+
+    .discovery-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .discovery-card span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .word-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .word-chip {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255, 222, 145, .5);
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .empty-discovery {
+      padding: 22px 12px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.7;
+    }
+
+    .reward-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+
+    .reward-layer.show { opacity: 1; }
+
+    .reward-bag {
+      position: absolute;
+      left: var(--reward-x, 50%);
+      top: var(--reward-y, 35%);
+      width: 110px;
+      height: 110px;
+      transform: translate(-50%, -50%) scale(.6);
+      object-fit: contain;
+      filter: drop-shadow(0 16px 18px rgba(67,42,18,.28));
+    }
+
+    .reward-layer.show .reward-bag { animation: rewardBag 2.1s ease forwards; }
+
+    .reward-copy {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      transform: translateX(-50%);
+      min-width: 210px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,251,239,.96);
+      box-shadow: var(--shadow);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .reward-nut {
+      position: absolute;
+      left: var(--reward-x, 50%);
+      top: var(--reward-y, 35%);
+      width: 21px;
+      height: 21px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 5px rgba(67,42,18,.18));
+      animation: rewardNut 1.25s ease-in forwards;
+      animation-delay: var(--delay);
+    }
+
+    @keyframes rewardBag {
+      0% { transform: translate(-50%, -50%) scale(.5); opacity: 0; }
+      20% { transform: translate(-50%, -50%) scale(1.08) rotate(-3deg); opacity: 1; }
+      38% { transform: translate(-50%, -50%) scale(1) rotate(3deg); }
+      55%, 85% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
+      100% { transform: translate(-50%, -60%) scale(.88); opacity: 0; }
+    }
+
+    @keyframes rewardNut {
+      0% { transform: translate(-50%, 0) rotate(0deg) scale(.5); opacity: 0; }
+      20% { opacity: 1; }
+      55% { transform: translate(calc(-50% + var(--spread)), -48px) rotate(220deg) scale(1); }
+      100% { left: 91%; top: 5%; transform: translate(-50%, -50%) rotate(520deg) scale(.4); opacity: 0; }
+    }
+
+    .lantern-switch {
+      position: absolute;
+      z-index: 8;
+      left: 76%;
+      top: 51%;
+      width: 54px;
+      height: 70px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(255, 221, 145, .08);
+      cursor: pointer;
+    }
+
+    .lantern-switch::after {
+      content: "";
+      position: absolute;
+      inset: 15px 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(255, 224, 157, .22);
+      transition: box-shadow 1s ease, background 1s ease;
+    }
+
+    .lantern-switch.is-lit::after {
+      background: rgba(255, 218, 126, .35);
+      box-shadow: 0 0 20px 8px rgba(255, 194, 86, .35);
     }
 
     .weather,
@@ -506,7 +714,8 @@
         left 1.7s cubic-bezier(.22, .9, .26, 1),
         top 1.7s cubic-bezier(.22, .9, .26, 1),
         transform 1.7s cubic-bezier(.22, .9, .26, 1);
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
     }
 
     .live-bird img {
@@ -515,8 +724,14 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transition: opacity .18s ease;
+      transform: translateY(var(--mode-y-offset, 0px));
+      transform-origin: bottom center;
+      transition: opacity .18s ease, transform .2s ease;
       user-select: none;
+    }
+
+    .live-bird.is-breathing img {
+      animation: birdBreathing 3s ease-in-out infinite;
     }
 
     .live-bird.moving { animation: floatMove 1.6s ease; }
@@ -524,6 +739,15 @@
     @keyframes floatMove {
       0%, 100% { margin-top: 0; }
       45% { margin-top: -22px; }
+    }
+
+    @keyframes birdBreathing {
+      0%, 100% {
+        transform: translateY(var(--mode-y-offset, 0px)) scaleX(.98) scaleY(.98);
+      }
+      50% {
+        transform: translateY(var(--mode-y-offset, 0px)) scaleX(1.02) scaleY(1.03);
+      }
     }
 
     @keyframes toyWobble {
@@ -1388,8 +1612,8 @@
         <img class="furniture perch" src="assets/home/perch.png" alt="" />
       </div>
       <div class="poop-layer" id="poopLayer" aria-hidden="true"></div>
-      <div class="bird-layer" aria-hidden="true">
-        <div class="live-bird" id="liveBird">
+      <div class="bird-layer">
+        <div class="live-bird" id="liveBird" role="button" tabindex="0" aria-label="もっちんをなでる">
           <img id="birdImage" src="assets/home/inko.png" alt="" />
         </div>
       </div>
@@ -1398,6 +1622,7 @@
         <div class="lantern-glow is-off" id="lanternGlow"></div>
       </div>
       <div class="time-tint day" id="timeTint" aria-hidden="true"></div>
+      <button class="lantern-switch" id="lanternSwitch" aria-label="ランタンで昼夜を切り替える"></button>
       <div class="vignette"></div>
       <div class="sparkles" id="sparkles"></div>
 
@@ -1414,12 +1639,15 @@
             <div class="subtitle">今日もお部屋でのんびり</div>
           </div>
         </div>
-        <span></span>
+        <div class="home-nut-box" aria-label="木の実">
+          <span class="acorn" aria-hidden="true"></span>
+          <strong id="homeNutCount">1,244</strong>
+        </div>
       </section>
 
       <nav class="left-rail" aria-label="ショートカット">
         <button class="round-tool" data-message="カメラをかまえました"><span aria-hidden="true">📷</span><small>カメラ</small></button>
-        <button class="round-tool" data-message="新しいミッションがあります"><span class="notice"></span><span aria-hidden="true">📋</span><small>ミッション</small></button>
+        <button class="round-tool" id="missionButton"><span class="notice" id="missionNotice"></span><span aria-hidden="true">📋</span><small>ミッション</small></button>
       </nav>
 
       <button class="mood-button" id="moodButton" aria-expanded="false" aria-controls="moodPanel" aria-label="もっちんの様子">
@@ -1523,6 +1751,30 @@
       </div>
     </section>
 
+    <section class="screen" id="discoveryScreen" aria-label="発見ノート">
+      <div class="shop-bg"></div>
+      <div class="vignette"></div>
+      <section class="discovery-sheet">
+        <header class="discovery-head">
+          <button class="back-button" id="discoveryBack" aria-label="ホームへ戻る">‹</button>
+          <div>
+            <h1>発見ノート</h1>
+            <div class="discovery-count" id="discoveryCount">発見した行動 0 / 250</div>
+          </div>
+        </header>
+        <h2 class="discovery-section-title">見つけたこと</h2>
+        <div class="discovery-list" id="discoveryList"></div>
+        <h2 class="discovery-section-title">覚えた言葉</h2>
+        <div class="word-chips" id="learnedWords"></div>
+      </section>
+    </section>
+
+    <div class="reward-layer" id="rewardLayer" aria-live="polite">
+      <img class="reward-bag" src="assets/home/Seed gift.png" alt="木の実の贈り物" />
+      <div class="reward-copy" id="rewardCopy">新しい発見！</div>
+      <div id="rewardNuts"></div>
+    </div>
+
     <div class="toast" id="toast">購入しました</div>
 
     <nav class="nav-bar" aria-label="メニュー">
@@ -1538,6 +1790,7 @@
     const screens = {
       home: document.querySelector("#homeScreen"),
       shop: document.querySelector("#shopScreen"),
+      discovery: document.querySelector("#discoveryScreen"),
       placeholder: document.querySelector("#placeholderScreen")
     };
     const liveBird = document.querySelector("#liveBird");
@@ -1556,9 +1809,18 @@
     const birdImage = document.querySelector("#birdImage");
     const zzzEffect = document.querySelector("#zzzEffect");
     const lanternGlow = document.querySelector("#lanternGlow");
+    const lanternSwitch = document.querySelector("#lanternSwitch");
     const timeTint = document.querySelector("#timeTint");
     const toyFigure = document.querySelector("#toyFigure");
     const poopLayer = document.querySelector("#poopLayer");
+    const homeNutCount = document.querySelector("#homeNutCount");
+    const discoveryCount = document.querySelector("#discoveryCount");
+    const discoveryList = document.querySelector("#discoveryList");
+    const learnedWordsNode = document.querySelector("#learnedWords");
+    const rewardLayer = document.querySelector("#rewardLayer");
+    const rewardCopy = document.querySelector("#rewardCopy");
+    const rewardNuts = document.querySelector("#rewardNuts");
+    const missionNotice = document.querySelector("#missionNotice");
 
     const STORAGE_KEY = "mocchinObservationPrototype";
     const SMALL_ACTION_MIN_MS = 3000;
@@ -1623,7 +1885,27 @@
       purchasedItems: [],
       furnitureState: defaultFurnitureState,
       poops: [],
-      poopGauge: 0
+      poopGauge: 0,
+      missionStats: {
+        feedCount: 0,
+        petCount: 0,
+        toyCount: 0,
+        cleanPressCount: 0,
+        cleanedPoops: 0,
+        tapCount: 0,
+        swingVisits: 0,
+        shopVisits: 0,
+        discoveryViews: 0,
+        homeSeconds: 0,
+        birdTapCount: 0
+      },
+      discoveredMissions: [],
+      learnedWords: [],
+      loginDates: [],
+      morningDates: [],
+      nightDates: [],
+      lastSeenAt: null,
+      manualTimeMode: null
     };
 
     const persistedState = loadState();
@@ -1636,7 +1918,16 @@
       },
       purchasedItems: Array.isArray(persistedState.purchasedItems) ? persistedState.purchasedItems : [],
       poops: Array.isArray(persistedState.poops) ? persistedState.poops.slice(-MAX_POOPS) : [],
-      poopGauge: Number.isFinite(persistedState.poopGauge) ? persistedState.poopGauge : 0
+      poopGauge: Number.isFinite(persistedState.poopGauge) ? persistedState.poopGauge : 0,
+      missionStats: {
+        ...defaultState.missionStats,
+        ...(persistedState.missionStats || {})
+      },
+      discoveredMissions: Array.isArray(persistedState.discoveredMissions) ? persistedState.discoveredMissions : [],
+      learnedWords: Array.isArray(persistedState.learnedWords) ? persistedState.learnedWords : [],
+      loginDates: Array.isArray(persistedState.loginDates) ? persistedState.loginDates : [],
+      morningDates: Array.isArray(persistedState.morningDates) ? persistedState.morningDates : [],
+      nightDates: Array.isArray(persistedState.nightDates) ? persistedState.nightDates : []
     };
 
     let places = {};
@@ -1659,6 +1950,12 @@
       stretch: "assets/home/stretch.png",
       poop: "assets/home/poop.png"
     };
+    const birdModeYOffset = {
+      normal: 12,
+      stretch: 12,
+      preening: 12,
+      tilt: 12
+    };
     let toastTimer = 0;
     let bubbleTimer = 0;
     let smallActionTimer = 0;
@@ -1667,6 +1964,9 @@
     let isPooping = false;
     let behaviorTimers = [];
     let walkFrameTimer = 0;
+    let rewardQueue = [];
+    let rewardPlaying = false;
+    let homeStayTimer = 0;
 
     const categories = {
       furniture: {
@@ -1722,12 +2022,104 @@
       { name: "窓辺セット", price: 500, icons: ["🌿", "🧺", "🧻"] }
     ];
 
+    const TOTAL_DISCOVERIES = 250;
+    const missionDefinitions = [
+      { id: "feed_1", title: "はじめてのごはん", description: "ごはんを1回あげた", reward: 3, check: () => state.missionStats.feedCount >= 1 },
+      { id: "feed_3", title: "ごはんの時間", description: "ごはんを3回あげた", reward: 5, check: () => state.missionStats.feedCount >= 3 },
+      { id: "feed_5", title: "いつものお皿", description: "ごはんを5回あげた", reward: 8, check: () => state.missionStats.feedCount >= 5 },
+      { id: "pet_1", title: "はじめてのなでなで", description: "もっちんを1回なでた", reward: 3, check: () => state.missionStats.petCount >= 1 },
+      { id: "pet_5", title: "なかよしの手", description: "もっちんを5回なでた", reward: 8, check: () => state.missionStats.petCount >= 5 },
+      { id: "toy_1", title: "おもちゃ発見", description: "おもちゃで1回遊んだ", reward: 3, check: () => state.missionStats.toyCount >= 1 },
+      { id: "toy_5", title: "遊び上手", description: "おもちゃで5回遊んだ", reward: 8, check: () => state.missionStats.toyCount >= 5 },
+      { id: "clean_press_1", title: "はじめてのおそうじ", description: "掃除を1回した", reward: 3, check: () => state.missionStats.cleanPressCount >= 1 },
+      { id: "clean_poop_1", title: "ひとつきれいに", description: "フンを1個掃除した", reward: 5, check: () => state.missionStats.cleanedPoops >= 1 },
+      { id: "clean_poop_3", title: "床がすっきり", description: "フンを3個掃除した", reward: 10, check: () => state.missionStats.cleanedPoops >= 3 },
+      { id: "shop_first", title: "小さなお店", description: "ショップを初めて訪れた", reward: 5, check: () => state.missionStats.shopVisits >= 1 },
+      { id: "discovery_first", title: "秘密のノート", description: "発見ノートを初めて開いた", reward: 5, check: () => state.missionStats.discoveryViews >= 1 },
+      { id: "home_60", title: "一分の観察", description: "ホームでもっちんを1分眺めた", reward: 5, check: () => state.missionStats.homeSeconds >= 60 },
+      { id: "home_180", title: "三分の観察", description: "ホームでもっちんを3分眺めた", reward: 10, check: () => state.missionStats.homeSeconds >= 180 },
+      { id: "bird_tap_10", title: "こっち向いて", description: "もっちんを10回タップした", reward: 5, check: () => state.missionStats.birdTapCount >= 10 },
+      {
+        id: "feed_10",
+        title: "ごはんの合図",
+        description: "ごはんを10回あげた",
+        reward: 10,
+        word: "ごはん！",
+        check: () => state.missionStats.feedCount >= 10
+      },
+      {
+        id: "clean_50",
+        title: "ぴかぴかのお部屋",
+        description: "フンを50個きれいにした",
+        reward: 30,
+        word: "ありがと！",
+        check: () => state.missionStats.cleanedPoops >= 50
+      },
+      {
+        id: "morning_5",
+        title: "朝のともだち",
+        description: "朝に5日会いにきた",
+        reward: 20,
+        word: "おはよ！",
+        check: () => state.morningDates.length >= 5
+      },
+      {
+        id: "night_3",
+        title: "夜ふかし観察者",
+        description: "夜に3日続けて会いにきた",
+        reward: 25,
+        check: () => countConsecutiveDates(state.nightDates) >= 3
+      },
+      {
+        id: "streak_7",
+        title: "いつもの窓辺",
+        description: "7日続けて会いにきた",
+        reward: 30,
+        check: () => countConsecutiveDates(state.loginDates) >= 7
+      },
+      {
+        id: "away_24h",
+        title: "ひさしぶり",
+        description: "24時間以上ぶりに会いにきた",
+        reward: 40,
+        word: "どこいってたの？",
+        check: () => state.missionStats.away24h === true
+      },
+      {
+        id: "swing_20",
+        title: "ゆらゆら名人",
+        description: "ブランコへ20回遊びにいった",
+        reward: 15,
+        check: () => state.missionStats.swingVisits >= 20
+      },
+      {
+        id: "tap_50",
+        title: "小さな合図",
+        description: "お世話ボタンを50回押した",
+        reward: 15,
+        check: () => state.missionStats.tapCount >= 50
+      },
+      {
+        id: "natural_room",
+        title: "木の香りの部屋",
+        description: "白木の止まり木・植物ラック・バードランプを集めた",
+        reward: 35,
+        check: () => ["白木の止まり木", "植物ラック", "バードランプ"].every(item => state.purchasedItems.includes(item))
+      }
+    ];
+
     function clamp(value, min = 0, max = 5) {
       return Math.max(min, Math.min(max, value));
     }
 
     function randomBetween(min, max) {
       return Math.round(min + Math.random() * (max - min));
+    }
+
+    function randomSpeech() {
+      const learned = state.learnedWords.flatMap(word => [word, word]);
+      const pool = [...randomLines, ...learned];
+      return pool[Math.floor(Math.random() * pool.length)];
     }
 
     function loadState() {
@@ -1748,9 +2140,52 @@
         purchasedItems: state.purchasedItems,
         furnitureState: state.furnitureState,
         poops: state.poops,
-        poopGauge: state.poopGauge
+        poopGauge: state.poopGauge,
+        missionStats: state.missionStats,
+        discoveredMissions: state.discoveredMissions,
+        learnedWords: state.learnedWords,
+        loginDates: state.loginDates,
+        morningDates: state.morningDates,
+        nightDates: state.nightDates,
+        manualTimeMode: state.manualTimeMode,
+        lastSeenAt: Date.now()
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }
+
+    function localDateKey(date = new Date()) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function addUniqueDate(list, key) {
+      if (!list.includes(key)) list.push(key);
+      return list.slice(-40);
+    }
+
+    function countConsecutiveDates(list) {
+      const unique = [...new Set(list)].sort().reverse();
+      if (!unique.length) return 0;
+      let count = 1;
+      let cursor = new Date(`${unique[0]}T12:00:00`);
+      for (let i = 1; i < unique.length; i += 1) {
+        const expected = new Date(cursor);
+        expected.setDate(expected.getDate() - 1);
+        if (localDateKey(expected) !== unique[i]) break;
+        count += 1;
+        cursor = expected;
+      }
+      return count;
+    }
+
+    function recordSession() {
+      const now = new Date();
+      const today = localDateKey(now);
+      state.loginDates = addUniqueDate(state.loginDates, today);
+      if (now.getHours() >= 5 && now.getHours() < 10) state.morningDates = addUniqueDate(state.morningDates, today);
+      if (now.getHours() >= 19 || now.getHours() < 2) state.nightDates = addUniqueDate(state.nightDates, today);
+      const previous = Number(persistedState.lastSeenAt || 0);
+      if (previous && Date.now() - previous >= 24 * 60 * 60 * 1000) state.missionStats.away24h = true;
+      saveState();
     }
 
     function buildFurniturePlace(name) {
@@ -1794,19 +2229,110 @@
       updatePlaces();
     }
 
+    function renderDiscoveries() {
+      const found = missionDefinitions.filter(mission => state.discoveredMissions.includes(mission.id));
+      discoveryCount.textContent = `発見した行動 ${found.length} / ${TOTAL_DISCOVERIES}`;
+      discoveryList.innerHTML = found.length ? found.map(mission => `
+        <article class="discovery-card">
+          <strong>✦ ${mission.title}</strong>
+          <span>${mission.description}・木の実 ${mission.reward}個</span>
+        </article>
+      `).join("") : `<div class="empty-discovery">まだ何も見つかっていません。<br>もっちんと色々な時間を過ごしてみよう。</div>`;
+      learnedWordsNode.innerHTML = state.learnedWords.length
+        ? state.learnedWords.map(word => `<span class="word-chip">${word}</span>`).join("")
+        : `<div class="empty-discovery">まだ言葉を覚えていません。</div>`;
+      missionNotice.style.display = found.length ? "block" : "none";
+    }
+
+    function learnWord(word) {
+      if (!word || state.learnedWords.includes(word)) return;
+      state.learnedWords.push(word);
+    }
+
+    function checkMissions() {
+      missionDefinitions.forEach(mission => {
+        if (state.discoveredMissions.includes(mission.id) || !mission.check()) return;
+        state.discoveredMissions.push(mission.id);
+        learnWord(mission.word);
+        rewardQueue.push(mission);
+      });
+      renderDiscoveries();
+      saveState();
+      playNextReward();
+    }
+
+    function playPopSound(delay = 0) {
+      window.setTimeout(() => {
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          const audio = new AudioContextClass();
+          const oscillator = audio.createOscillator();
+          const gain = audio.createGain();
+          oscillator.type = "sine";
+          oscillator.frequency.setValueAtTime(520, audio.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(760, audio.currentTime + .08);
+          gain.gain.setValueAtTime(.08, audio.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .12);
+          oscillator.connect(gain).connect(audio.destination);
+          oscillator.start();
+          oscillator.stop(audio.currentTime + .13);
+        } catch {}
+      }, delay);
+    }
+
+    function playNextReward() {
+      if (rewardPlaying || !rewardQueue.length) return;
+      rewardPlaying = true;
+      const mission = rewardQueue.shift();
+      const place = places[state.place] || places.perch;
+      rewardLayer.style.setProperty("--reward-x", `${place.x}%`);
+      rewardLayer.style.setProperty("--reward-y", `${Math.max(12, place.y - 13)}%`);
+      rewardCopy.textContent = `「${mission.title}」発見！ 木の実 +${mission.reward}`;
+      rewardNuts.innerHTML = Array.from({ length: 5 }, (_, index) => `
+        <img class="reward-nut" src="assets/home/seed.png" alt="" style="--delay:${.35 + index * .13}s; --spread:${(index - 2) * 14}px" />
+      `).join("");
+      rewardLayer.classList.remove("show");
+      void rewardLayer.offsetWidth;
+      rewardLayer.classList.add("show");
+      playPopSound(650);
+      playPopSound(880);
+      window.setTimeout(() => {
+        state.nuts += mission.reward;
+        renderNuts();
+        if (mission.word) showBubble(mission.word, 1800);
+      }, 1250);
+      window.setTimeout(() => {
+        rewardLayer.classList.remove("show");
+        rewardNuts.innerHTML = "";
+        rewardPlaying = false;
+        playNextReward();
+      }, 2300);
+    }
+
     function showScreen(name) {
+      const isDiscovery = name === "discovery" || name === "book";
+      if (name === "shop") state.missionStats.shopVisits += 1;
+      if (isDiscovery) state.missionStats.discoveryViews += 1;
       screens.home.classList.toggle("active", name === "home");
       screens.shop.classList.toggle("active", name === "shop");
-      screens.placeholder.classList.toggle("active", !["home", "shop"].includes(name));
+      screens.discovery.classList.toggle("active", isDiscovery);
+      screens.placeholder.classList.toggle("active", !["home", "shop", "book", "discovery"].includes(name));
       document.querySelectorAll(".nav-item").forEach(item => {
-        item.classList.toggle("active", item.dataset.screen === name);
+        item.classList.toggle("active", item.dataset.screen === name || (isDiscovery && item.dataset.screen === "book"));
       });
-      if (!["home", "shop"].includes(name)) {
-        const labels = { interior: "インテリア", book: "ずかん", letter: "通信" };
+      if (!["home", "shop", "book", "discovery"].includes(name)) {
+        const labels = { interior: "インテリア", letter: "通信" };
         placeholderTitle.textContent = labels[name] || "仮画面";
+      }
+      if (isDiscovery) {
+        renderDiscoveries();
+        missionNotice.style.display = "none";
       }
       moodPanel.classList.remove("open");
       moodButton.setAttribute("aria-expanded", "false");
+      checkMissions();
+      if (isDiscovery) missionNotice.style.display = "none";
     }
 
     function setDots(id, value, className) {
@@ -1830,6 +2356,8 @@
     function setBirdMode(mode) {
       state.mode = mode;
       birdImage.src = birdImages[mode] || birdImages.normal;
+      liveBird.style.setProperty("--mode-y-offset", `${birdModeYOffset[mode] || 0}px`);
+      liveBird.classList.toggle("is-breathing", mode === "normal" || mode === "sleeping");
       if (mode === "attack") {
         liveBird.style.setProperty("--bird-w", "132px");
         liveBird.style.setProperty("--bird-h", "66px");
@@ -1862,7 +2390,12 @@
 
     function setBirdAt(placeName) {
       const place = places[placeName];
+      const previousPlace = state.place;
       state.place = placeName;
+      if (placeName === "swing" && previousPlace !== "swing") {
+        state.missionStats.swingVisits += 1;
+        checkMissions();
+      }
       liveBird.style.setProperty("--bird-x", `${place.x}%`);
       liveBird.style.setProperty("--bird-y", `${place.y}%`);
       liveBird.style.setProperty("--bird-scale", place.scale);
@@ -1893,6 +2426,7 @@
       later(travel === "walk" ? 1700 : 1250, () => {
         window.clearInterval(walkFrameTimer);
         walkFrameTimer = 0;
+        liveBird.classList.remove("moving");
         setBirdMode(arrivalMode);
       });
     }
@@ -1944,18 +2478,18 @@
     function createPoop() {
       const place = places[state.place] || places.perch;
       const poopOffsets = {
-        perch: { x: 0, y: 9 },
-        bed: { x: -2, y: 8 },
-        food: { x: 2, y: 8 },
-        swing: { x: 0, y: 9 },
-        toy: { x: -2, y: 8 },
-        floorLeft: { x: 1, y: 6 },
-        floorCenter: { x: 1, y: 6 },
-        floorRight: { x: 1, y: 6 }
+        perch: { x: 0, y: 5 },
+        bed: { x: -1, y: 5 },
+        food: { x: 1, y: 5 },
+        swing: { x: 0, y: 5 },
+        toy: { x: -1, y: 4 },
+        floorLeft: { x: 1, y: 4 },
+        floorCenter: { x: 1, y: 4 },
+        floorRight: { x: 1, y: 4 }
       };
-      const offset = poopOffsets[state.place] || { x: 0, y: 8 };
-      const x = clamp(place.x + offset.x + randomBetween(-3, 3), 10, 90);
-      const y = clamp(place.y + offset.y + randomBetween(-2, 3), 12, 86);
+      const offset = poopOffsets[state.place] || { x: 0, y: 5 };
+      const x = clamp(place.x + offset.x + randomBetween(-2, 2), 10, 90);
+      const y = clamp(place.y + offset.y + randomBetween(-1, 2), 12, 86);
       state.poops.push({ x, y, size: randomBetween(26, 36) });
       state.poops = state.poops.slice(-MAX_POOPS);
       renderPoops();
@@ -2068,9 +2602,14 @@
     }
 
     function smallHop() {
+      liveBird.classList.remove("is-breathing");
       liveBird.classList.remove("moving");
       void liveBird.offsetWidth;
       liveBird.classList.add("moving");
+      later(1600, () => {
+        liveBird.classList.remove("moving");
+        if (state.mode === "normal") liveBird.classList.add("is-breathing");
+      });
     }
 
     function tinyWalkInPlace() {
@@ -2154,7 +2693,7 @@
         showBubble(dirtyLines[Math.floor(Math.random() * dirtyLines.length)], 1500);
         return;
       }
-      showBubble(randomLines[Math.floor(Math.random() * randomLines.length)], 1200);
+      showBubble(randomSpeech(), 1200);
     }
 
     function scheduleSmallAction() {
@@ -2165,6 +2704,16 @@
     function scheduleMoveAction() {
       window.clearTimeout(moveActionTimer);
       moveActionTimer = window.setTimeout(moveLife, randomBetween(MOVE_ACTION_MIN_MS, MOVE_ACTION_MAX_MS));
+    }
+
+    function startHomeStayTimer() {
+      window.clearInterval(homeStayTimer);
+      homeStayTimer = window.setInterval(() => {
+        if (!screens.home.classList.contains("active")) return;
+        state.missionStats.homeSeconds += 1;
+        if ([60, 180].includes(state.missionStats.homeSeconds)) checkMissions();
+        else if (state.missionStats.homeSeconds % 15 === 0) saveState();
+      }, 1000);
     }
 
     function smallLife() {
@@ -2232,7 +2781,7 @@
         const nextFloor = floorKeys.filter(key => key !== state.place)[Math.floor(Math.random() * 2)];
         moveBird(nextFloor, "walk", "walk");
         gainPoopGauge(POOP_WALK_GAIN);
-        showBubble(randomLines[Math.floor(Math.random() * randomLines.length)], 1300);
+        showBubble(randomSpeech(), 1300);
         return;
       }
       if (type === "swing") {
@@ -2276,13 +2825,16 @@
 
     function renderNuts() {
       nutCount.textContent = state.nuts.toLocaleString("ja-JP");
+      homeNutCount.textContent = state.nuts.toLocaleString("ja-JP");
       saveState();
     }
 
     document.querySelectorAll("[data-action]").forEach(button => {
       button.addEventListener("click", () => {
         const action = button.dataset.action;
+        state.missionStats.tapCount += 1;
         if (action === "feed") {
+          state.missionStats.feedCount += 1;
           state.hunger = clamp(state.hunger + 2);
           moveBird("food");
           showBubble("おいしい");
@@ -2290,12 +2842,14 @@
           showToast("ごはんをあげました");
         }
         if (action === "pet") {
+          state.missionStats.petCount += 1;
           state.mood = clamp(state.mood + 1);
           showBubble("♡");
           if (["perch", "swing"].includes(state.place)) animatePreening();
           showToast("もっちんがうれしそう");
         }
         if (action === "toy") {
+          state.missionStats.toyCount += 1;
           state.mood = clamp(state.mood + 2);
           state.sleep = clamp(state.sleep - 1);
           moveBird("toy", "attack");
@@ -2304,6 +2858,8 @@
           showToast("おもちゃをつつきました");
         }
         if (action === "clean") {
+          state.missionStats.cleanPressCount += 1;
+          state.missionStats.cleanedPoops += state.poops.length;
           state.clean = 5;
           state.poops = [];
           state.poopGauge = 0;
@@ -2312,6 +2868,7 @@
           addSparkles(12, places[state.place]);
         }
         renderMood();
+        checkMissions();
       });
     });
 
@@ -2320,6 +2877,24 @@
         showToast(button.dataset.message);
         addSparkles(5, places[state.place]);
       });
+    });
+
+    document.querySelector("#missionButton").addEventListener("click", () => showScreen("discovery"));
+    document.querySelector("#discoveryBack").addEventListener("click", () => showScreen("home"));
+
+    function tapMocchin() {
+      state.missionStats.birdTapCount += 1;
+      if (state.mode === "normal") animateTilt();
+      else showBubble("ぴ", 900);
+      checkMissions();
+    }
+
+    liveBird.addEventListener("click", tapMocchin);
+    liveBird.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        tapMocchin();
+      }
     });
 
     document.querySelectorAll(".nav-item").forEach(button => {
@@ -2356,11 +2931,23 @@
       state.purchasedItems.push(buy.dataset.name);
       renderNuts();
       showToast("購入しました");
+      checkMissions();
     });
 
     moodButton.addEventListener("click", () => {
       const isOpen = moodPanel.classList.toggle("open");
       moodButton.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    lanternSwitch.addEventListener("click", () => {
+      const switchingToNight = !timeTint.classList.contains("night");
+      state.manualTimeMode = switchingToNight ? "night" : "day";
+      updateTimeOfDay();
+      if (switchingToNight && Math.random() < .75) {
+        const nightLines = ["おやすみ", "ねる？", "すやすや"];
+        showBubble(nightLines[Math.floor(Math.random() * nightLines.length)], 1600);
+      }
+      saveState();
     });
 
     document.addEventListener("click", event => {
@@ -2382,24 +2969,30 @@
       if (hour >= 5 && hour < 10) period = "morning";
       else if (hour >= 10 && hour < 16) period = "day";
       else if (hour >= 16 && hour < 19) period = "evening";
+      if (state.manualTimeMode === "night" || state.manualTimeMode === "day") period = state.manualTimeMode;
       timeTint.className = `time-tint ${period}`;
       lanternGlow.classList.toggle("is-off", period !== "night");
+      lanternSwitch.classList.toggle("is-lit", period === "night");
     }
 
     applyFurniturePositions();
+    recordSession();
     renderPoops();
     renderMood();
     renderProducts();
     renderSets();
     renderNuts();
+    renderDiscoveries();
     setBirdAt("perch");
     setBirdMode("normal");
     showBubble("♪", 1400);
     updateClock();
     window.setInterval(updateClock, 30000);
     startPoopGaugeTimer();
+    startHomeStayTimer();
     scheduleSmallAction();
     scheduleMoveAction();
+    checkMissions();
   </script>
 </body>
 </html>
